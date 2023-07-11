@@ -17,92 +17,77 @@ export function addCitation() {
         (progress) => {
             return new Promise<void>((resolve) => {
                 clipboardText.then((text) => {
-                    fetchDBLP(text)
-                        .then((data) => {
-                            if (data) {
-                                // Display fetched BibTeX and offer options to add or discard
-                                vscode.window
-                                    .showInformationMessage(
-                                        'BibTeX found: ' + getTitleFromBibTeX(data),
-                                        // { modal: true },
-                                        'Add to library.bib',
-                                        'Discard'
-                                    )
-                                    .then((selectedOption) => {
-                                        if (selectedOption === 'Add to library.bib') {
-                                            // Add the data to a file
-                                            const filename = 'library.bib';
-                                            addStringToFile(filename, data + '\n\n')
-                                                .then(() => {
-                                                    console.log('Data added to the file successfully.');
-                                                    vscode.window.showInformationMessage('BibTeX added to library.bib.');
-                                                })
-                                                .catch((error) => {
-                                                    console.error('Error adding data to the file:', error);
-                                                    vscode.window.showErrorMessage('Error adding BibTeX to library.bib.');
-                                                });
-                                        } else {
-                                            // Discard the fetched BibTeX
-                                            console.log('BibTeX discarded.');
-                                            vscode.window.showInformationMessage('BibTeX discarded.');
-                                        }
-                                    });
-                            } else {
-                                // Try fetching from Scholar Archive
-                                fetchScholarArchive(text)
-                                    .then((data) => {
-                                        if (data) {
-                                            // Display fetched BibTeX and offer options to add or discard
-                                            vscode.window
-                                                .showInformationMessage(
-                                                    'BibTeX found on Scholar Archive: ' + getTitleFromBibTeX(data),
-                                                    // { modal: true },
-                                                    'Add to library.bib',
-                                                    'Discard'
-                                                )
-                                                .then((selectedOption) => {
-                                                    if (selectedOption === 'Add to library.bib') {
-                                                        // Add the data to a file
-                                                        const filename = 'library.bib';
-                                                        addStringToFile(filename, data + '\n\n')
-                                                            .then(() => {
-                                                                console.log('Data added to the file successfully.');
-                                                                vscode.window.showInformationMessage('BibTeX added to library.bib.');
-                                                            })
-                                                            .catch((error) => {
-                                                                console.error('Error adding data to the file:', error);
-                                                                vscode.window.showErrorMessage('Error adding BibTeX to library.bib.');
-                                                            });
-                                                    } else {
-                                                        // Discard the fetched BibTeX
-                                                        console.log('BibTeX discarded.');
-                                                        vscode.window.showInformationMessage('BibTeX discarded.');
-                                                    }
-                                                });
-                                        } else {
-                                            // No citation found
-                                            console.log('No citation found.');
-                                            vscode.window.showWarningMessage('No citation found.');
-                                        }
-                                    })
-                                    .catch((error) => {
-                                        // Handle errors
-                                        console.error('Error fetching citation:', error);
-                                        vscode.window.showErrorMessage('Error fetching citation.');
-                                    })
-                                    .finally(() => {
-                                        resolve();
-                                    });
-                            }
-                        })
-                        .catch((error) => {
-                            // Handle errors
-                            console.error('Error fetching citation:', error);
-                            vscode.window.showErrorMessage('Error fetching citation.');
-                        })
-                        .finally(() => {
-                            resolve();
-                        });
+                    let progressTitle = 'DBLP';
+                    let fetchFunction = fetchDBLP;
+
+                    const updateProgress = (newTitle: string) => {
+                        progress.report({ message: newTitle });
+                        progressTitle = newTitle;
+                    };
+
+                    const fetchBibTeX = () => {
+                        updateProgress(progressTitle);
+                        fetchFunction(text)
+                            .then((data) => {
+                                if (data) {
+                                    // Display fetched BibTeX and offer options to add or discard
+                                    vscode.window
+                                        .showInformationMessage(
+                                            'BibTeX found: ' + getTitleFromBibTeX(data),
+                                            // { modal: true },
+                                            'Add to library.bib',
+                                            'Discard'
+                                        )
+                                        .then((selectedOption) => {
+                                            if (selectedOption === 'Add to library.bib') {
+                                                // Add the data to a file
+                                                const filename = 'library.bib';
+                                                addStringToFile(filename, data + '\n\n')
+                                                    .then(() => {
+                                                        console.log('Data added to the file successfully.');
+                                                        vscode.window.showInformationMessage('BibTeX added to library.bib.');
+                                                        resolve(); // Resolve the promise
+                                                        progress.report({}); // Empty object to make progress bar disappear
+                                                    })
+                                                    .catch((error) => {
+                                                        console.error('Error adding data to the file:', error);
+                                                        vscode.window.showErrorMessage('Error adding BibTeX to library.bib.');
+                                                        resolve(); // Resolve the promise
+                                                        progress.report({}); // Empty object to make progress bar disappear
+                                                    });
+                                            } else {
+                                                // Discard the fetched BibTeX
+                                                console.log('BibTeX discarded.');
+                                                vscode.window.showInformationMessage('BibTeX discarded.');
+                                                resolve(); // Resolve the promise
+                                                progress.report({}); // Empty object to make progress bar disappear
+                                            }
+                                        });
+                                } else {
+                                    // If DBLP search failed, try Scholar Archive
+                                    if (fetchFunction === fetchDBLP) {
+                                        fetchFunction = fetchScholarArchive;
+                                        updateProgress('Scholar Archive');
+                                        fetchBibTeX();
+                                    } else {
+                                        // No citation found
+                                        console.log('No citation found.');
+                                        vscode.window.showWarningMessage('No citation found.');
+                                        resolve(); // Resolve the promise
+                                        progress.report({}); // Empty object to make progress bar disappear
+                                    }
+                                }
+                            })
+                            .catch((error) => {
+                                // Handle errors
+                                console.error('Error fetching citation:', error);
+                                vscode.window.showErrorMessage('Error fetching citation.');
+                                resolve(); // Resolve the promise
+                                progress.report({}); // Empty object to make progress bar disappear
+                            });
+                    };
+
+                    fetchBibTeX();
                 });
             });
         }
