@@ -51,7 +51,7 @@ export function addCitation() {
                                                     })
                                                     .catch((error) => {
                                                         console.error('Error adding data to the file:', error);
-                                                        vscode.window.showErrorMessage('Error adding BibTeX to library.bib.');
+                                                        //vscode.window.showErrorMessage(error);
                                                         resolve(); // Resolve the promise
                                                         progress.report({}); // Empty object to make progress bar disappear
                                                     });
