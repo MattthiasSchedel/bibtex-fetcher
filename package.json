@@ -2,7 +2,7 @@
   "name": "bibtex-manager",
   "displayName": "BibTex Manager",
   "description": "",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "icon": "res/Bibfetch_Logo.png",
   "publisher": "matthiasschedel",
   "repository": {
