@@ -32,17 +32,18 @@ export function addCitation() {
                             .then((data) => {
                                 if (data) {
                                     // Display fetched BibTeX and offer options to add or discard
+                                    const filename = getLibraryFilePath();
+                                    const buttonLabel = `Add to ${filename}`;
                                     vscode.window
                                         .showInformationMessage(
                                             'BibTeX found: ' + getTitleFromBibTeX(data),
                                             // { modal: true },
-                                            'Add to library.bib',
+                                            buttonLabel,
                                             'Discard'
                                         )
                                         .then((selectedOption) => {
-                                            if (selectedOption === 'Add to library.bib') {
+                                            if (selectedOption === buttonLabel) {
                                                 // Add the data to a file
-                                                const filename = 'library.bib';
                                                 addStringToFile(filename, data + '\n\n')
                                                     .then(() => {
                                                         console.log('Data added to the file successfully.');
@@ -116,4 +117,11 @@ function isLink(text: string) {
     // For example, you can use regular expressions to match common link patterns
     const linkRegex = /^(https?:\/\/)?[\w.-]+\.[a-zA-Z]{2,}(\/\S*)?$/;
     return linkRegex.test(text);
+}
+
+function getLibraryFilePath() {
+    // Retrieve the library file path from the settings
+    const config = vscode.workspace.getConfiguration();
+    const filePath = config.get('yourExtension.libraryFilePath');
+    return filePath as string;
 }

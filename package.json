@@ -24,7 +24,17 @@
         "command": "bibtex-manager.helloWorld",
         "title": "Hello World"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "BibTex Manager",
+      "properties": {
+        "yourExtension.libraryFilePath": {
+          "type": "string",
+          "default": "library",
+          "description": "The file path for the library.bib file"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
