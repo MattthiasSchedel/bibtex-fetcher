@@ -3,8 +3,8 @@
   "displayName": "BibTex Manager",
   "description": "",
   "version": "0.1.1",
-  "icon": "icon.png",
-  "publisher": "res/setPath.png",
+  "icon": "res/Bibfetch_Logo.png",
+  "publisher": "matthiasschedel",
   "repository": {
     "type": "git",
     "url": "https://github.com/MattthiasSchedel/bibtex-fetcher"
