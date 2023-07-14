@@ -2,7 +2,7 @@
   "name": "bibtex-manager",
   "displayName": "BibTex Manager",
   "description": "",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "publisher": "matthiasschedel",
   "repository": {
     "type": "git",
