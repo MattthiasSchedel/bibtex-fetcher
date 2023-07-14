@@ -1,5 +1,6 @@
 import { fetchScholarArchive } from './fetchScholarArchive';
 import { fetchDBLP } from './fetchDBLP';
+import { fetchWebsite } from './fetchWebsite';
 import { addStringToFile } from './addStringToFile';
 import * as vscode from 'vscode';
 
@@ -87,6 +88,13 @@ export function addCitation() {
                             });
                     };
 
+                    // Check if the clipboard text is a link
+                    if (isLink(text)) {
+                        // Call fetchWebsite instead of fetchDBLP or fetchScholarArchive
+                        fetchFunction = fetchWebsite;
+                        updateProgress('Website');
+                    }
+
                     fetchBibTeX();
                 });
             });
@@ -101,4 +109,11 @@ function getTitleFromBibTeX(bibtexString: string) {
         return match[1];
     }
     return null;
+}
+
+function isLink(text: string) {
+    // Implement your logic to check if the text is a link
+    // For example, you can use regular expressions to match common link patterns
+    const linkRegex = /^(https?:\/\/)?[\w.-]+\.[a-zA-Z]{2,}(\/\S*)?$/;
+    return linkRegex.test(text);
 }
