@@ -31,3 +31,8 @@ Added automatic BibTex generation for websites.
 ### 0.2.0 
 
 Added the (long needed) option to use a custom filename.
+
+### 0.3.0 
+
+There was an issue with DBLP. Thats why i changed it so you now can choose the engine which is used to look up the citation in the settings. 
+

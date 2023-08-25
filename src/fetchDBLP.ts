@@ -14,7 +14,7 @@ export function fetchDBLP(q: string){
                 data += chunk;
             });
             res.on('end', () => {
-                if (data.length > 0){
+                if (data.length > 0 && getTitleFromBibTeX !== null){
                     resolve(data);
                 }
                 else{
@@ -26,4 +26,13 @@ export function fetchDBLP(q: string){
             reject(error);
         });
     });
+}
+
+function getTitleFromBibTeX(bibtexString: string) {
+    const regex = /title\s*=\s*{([^}]*)}/i;
+    const match = regex.exec(bibtexString);
+    if (match && match.length > 1) {
+        return match[1];
+    }
+    return null;
 }

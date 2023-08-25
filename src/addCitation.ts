@@ -21,13 +21,14 @@ export function addCitation() {
                     let progressTitle = 'DBLP';
                     let fetchFunction = fetchDBLP;
 
+
                     const updateProgress = (newTitle: string) => {
                         progress.report({ message: newTitle });
                         progressTitle = newTitle;
                     };
 
                     const fetchBibTeX = () => {
-                        updateProgress(progressTitle);
+                        updateProgress(progressTitle)
                         fetchFunction(text)
                             .then((data) => {
                                 if (data) {
@@ -65,20 +66,15 @@ export function addCitation() {
                                                 progress.report({}); // Empty object to make progress bar disappear
                                             }
                                         });
-                                } else {
-                                    // If DBLP search failed, try Scholar Archive
-                                    if (fetchFunction === fetchDBLP) {
-                                        fetchFunction = fetchScholarArchive;
-                                        updateProgress('Scholar Archive');
-                                        fetchBibTeX();
-                                    } else {
-                                        // No citation found
-                                        console.log('No citation found.');
-                                        vscode.window.showWarningMessage('No citation found.');
-                                        resolve(); // Resolve the promise
-                                        progress.report({}); // Empty object to make progress bar disappear
-                                    }
+                                } else 
+                                {
+                                    // No citation found
+                                    console.log('No citation found.');
+                                    vscode.window.showWarningMessage('No citation found.');
+                                    resolve(); // Resolve the promise
+                                    progress.report({}); // Empty object to make progress bar disappear
                                 }
+                                
                             })
                             .catch((error) => {
                                 // Handle errors
@@ -89,12 +85,25 @@ export function addCitation() {
                             });
                     };
 
+                    let citationSource = getCitationSource();
+                    console.log(citationSource);
                     // Check if the clipboard text is a link
                     if (isLink(text)) {
                         // Call fetchWebsite instead of fetchDBLP or fetchScholarArchive
                         fetchFunction = fetchWebsite;
                         updateProgress('Website');
                     }
+                    else if(citationSource == 'DBLP'){
+                        fetchFunction = fetchDBLP;
+                        updateProgress('DBLP');
+                        console.log("dblp selected");
+                    }
+                    else if(citationSource == 'Scholar Archive'){
+                        fetchFunction = fetchScholarArchive;
+                        updateProgress('Scholar Archive');
+                        console.log("sa selected");
+                    }
+
 
                     fetchBibTeX();
                 });
@@ -124,4 +133,11 @@ function getLibraryFilePath() {
     const config = vscode.workspace.getConfiguration();
     const filePath = config.get('yourExtension.libraryFilePath');
     return filePath as string;
+}
+
+function getCitationSource() {
+    // Retrieve the library file path from the settings
+    const config = vscode.workspace.getConfiguration();
+    const filePath = config.get('yourExtension.citationSource');
+    return filePath;
 }

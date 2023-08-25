@@ -33,6 +33,15 @@
           "type": "string",
           "default": "library",
           "description": "The file path for the library.bib file"
+        },
+        "yourExtension.citationSource": {
+          "type": "string",
+          "enum": [
+            "DBLP",
+            "Scholar Archive"
+          ],
+          "default": "Scholar Archive",
+          "description": "Choose the source for fetching citations."
         }
       }
     }
