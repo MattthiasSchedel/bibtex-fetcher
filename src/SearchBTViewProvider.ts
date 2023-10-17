@@ -86,7 +86,7 @@ export class SearchBTViewProvider implements vscode.WebviewViewProvider {
 		clipboardText.then((text) => {
 			if (this._view) {
 				if(!this._view.visible){
-					// vscode.commands.executeCommand('bibViewer.focus');
+					vscode.commands.executeCommand('workbench.view.extension.bibViewer');
 
 					vscode.commands.executeCommand(`searchView.focus`);
 				}
@@ -156,6 +156,6 @@ export function getNonce() {
 function getLibraryFilePath() {
     // Retrieve the library file path from the settings
     const config = vscode.workspace.getConfiguration();
-    const filePath = config.get('yourExtension.libraryFilePath');
+    const filePath = config.get('libraryFilePath');
     return filePath as string;
 }

@@ -23,7 +23,7 @@
     "configuration": {
       "title": "BibTeX Manager",
       "properties": {
-        "yourExtension.libraryFilePath": {
+        "libraryFilePath": {
           "type": "string",
           "default": "library",
           "description": "The file path for the library.bib file"
@@ -41,10 +41,6 @@
     },
     "views": {
       "bibViewer": [
-        {
-          "id": "bibView",
-          "name": "BibTeX Entries"
-        },
         {
           "type": "webview",
           "id": "searchView",

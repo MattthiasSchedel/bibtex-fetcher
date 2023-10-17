@@ -4,10 +4,10 @@ import { BibViewProvider } from './BibViewProvider';
 
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log("Activating tree view");
-    let bibViewProvider = new BibViewProvider(vscode.workspace.rootPath);
-    vscode.window.registerTreeDataProvider('bibView', bibViewProvider);
-    vscode.workspace.onDidChangeTextDocument(e => bibViewProvider.refresh());
+    // console.log("Activating tree view");
+    // let bibViewProvider = new BibViewProvider(vscode.workspace.rootPath);
+    // vscode.window.registerTreeDataProvider('bibView', bibViewProvider);
+    // vscode.workspace.onDidChangeTextDocument(e => bibViewProvider.refresh());
 
     const provider = new SearchBTViewProvider(context.extensionUri);
 
