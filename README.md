@@ -13,7 +13,8 @@ With release 1.0 we improved the usability by adding a visual interface for the 
 *The "Add Citation" button form previous versions will only work once you clicked on the "BibTeX Manager" icon in the activity bar to start the extension. We are working on fixing that. Clicking "Add Citation" will automatically search for the text thats in your clipboard.*
 <!-- ![screenshot](res/AddCitation.gif) -->
 <!-- <video src="res/addCitation.mp4" autoplay loop muted playsinline title="Add BibTeX"></video> -->
-![Alt text](<res/addCitation (1).gif>) <!-- by https://www.xconvert.com -->
+![Screenshot](<res/addCitation1.gif>) <!-- by https://www.xconvert.com -->
+
 
 ### Generating BibTeX for websites
 Version 1.0 does not support generating BibTeX for websites yet. We removed the feature from the pre-release since it was incomplete.
