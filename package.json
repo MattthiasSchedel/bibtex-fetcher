@@ -2,7 +2,7 @@
   "name": "bibtex-manager",
   "displayName": "BibTeX Manager",
   "description": "",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "icon": "media/Bibfetch_Logo.png",
   "publisher": "matthiasschedel",
   "repository": {
@@ -20,56 +20,56 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
-		"configuration": {
-			"title": "BibTeX Manager",
-			"properties": {
-			  "yourExtension.libraryFilePath": {
-				"type": "string",
-				"default": "library",
-				"description": "The file path for the library.bib file"
-			  }
-			}
-		},
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "bibViewer",
-					"title": "BibTeX Viewer",
-					"icon": "media/Bibfetch_Logo.png"
-				}
-			]
-		},
-		"views": {
-			"bibViewer": [
-				{
-					"id": "bibView",
-					"name": "BibTeX Entries"
-				},
-				{
-					"type": "webview",
-					"id": "searchView",
-					"name": "Look up BibTeX"
-				}
-			]
-		},
-		"commands": [
-			{
-				"command": "clearSearchList",
-				"category": "Calico Colors",
-				"title": "Clear Colors",
-				"icon": "$(clear-all)"
-			}
-		],
-		"menus": {
-			"view/title": [
-				{
-					"command": "clearSearchList",
-					"group": "navigation",
-					"when": "view == searchView"
-				}
-			]
-		}
-	},
+    "configuration": {
+      "title": "BibTeX Manager",
+      "properties": {
+        "yourExtension.libraryFilePath": {
+          "type": "string",
+          "default": "library",
+          "description": "The file path for the library.bib file"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "bibViewer",
+          "title": "BibTeX Viewer",
+          "icon": "media/Bibfetch_Logo.png"
+        }
+      ]
+    },
+    "views": {
+      "bibViewer": [
+        {
+          "id": "bibView",
+          "name": "BibTeX Entries"
+        },
+        {
+          "type": "webview",
+          "id": "searchView",
+          "name": "Look up BibTeX"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "clearSearchList",
+        "category": "Calico Colors",
+        "title": "Clear Colors",
+        "icon": "$(clear-all)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "clearSearchList",
+          "group": "navigation",
+          "when": "view == searchView"
+        }
+      ]
+    }
+  },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
