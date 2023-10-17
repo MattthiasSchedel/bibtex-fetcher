@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { fetchSemanticScholar } from './fetchSemanticScholar';
-import { fetchBibTeX } from './fetchBibTex';
 import { addStringToFile } from './addStringToFile';
+import { fetchBibTeX } from './fetchBibTeX';
 
 export class SearchBTViewProvider implements vscode.WebviewViewProvider {
 
@@ -86,7 +86,7 @@ export class SearchBTViewProvider implements vscode.WebviewViewProvider {
 		clipboardText.then((text) => {
 			if (this._view) {
 				if(!this._view.visible){
-					vscode.commands.executeCommand('bibViewer.focus');
+					// vscode.commands.executeCommand('bibViewer.focus');
 
 					vscode.commands.executeCommand(`searchView.focus`);
 				}
