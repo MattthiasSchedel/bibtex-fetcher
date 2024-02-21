@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { SearchBTViewProvider } from './SearchBTViewProvider';
-import { BibViewProvider } from './BibViewProvider';
+// import { BibViewProvider } from './BibViewProvider';
 
 
 export function activate(context: vscode.ExtensionContext) {

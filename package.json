@@ -27,6 +27,16 @@
           "type": "string",
           "default": "library",
           "description": "The file path for the library.bib file"
+        },
+        "bibKeyPattern": {
+          "type": "string",
+          "default": "a(1)y",
+          "markdownDescription": "The pattern for the BibTeX key. use the following components to create your pattern \n\n | Pattern | Description |\n|---|---|\n| `\\a(n)` | The last names of the first n authors. |\n| `\\Y` | The full year. |\n| `\\y` | The last two digits of the year. |\n| `\\T(n)` | The first n words of a title. |\n| `\\t(n)` | Only the beginning letters of the first n words in the title. |\n| `\\D` | DOI. | \n\nSet `(n)` to `(0)` to include all names/words in the title.\n\nEvery other character will be included in the BibTeX key."
+        },
+        "useBibKeyPattern": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use the BibKeyPattern to generate the BibTeX key"
         }
       }
     },

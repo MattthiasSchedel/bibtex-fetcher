@@ -2,16 +2,20 @@ import * as vscode from 'vscode';
 import { fetchSemanticScholar } from './fetchSemanticScholar';
 import { addStringToFile } from './addStringToFile';
 import { fetchBibTeX } from './fetchBibTeX';
+import { getLibraryFilePath, getBibKeyPattern, getNonce } from './utils';
+import { getBibTexKey, replaceBibTexKey } from './bibtexUtils';
+import { getHtmlForWebview } from './webviewContent';
+import { Paper } from './paper';
+
+type PaperDictionary = { [paperId: string]: Paper };
 
 export class SearchBTViewProvider implements vscode.WebviewViewProvider {
-
 	public static readonly viewType = 'searchView';
 
-	private _view?: vscode.WebviewView;
+	constructor(private readonly _extensionUri: vscode.Uri) { }
 
-	constructor(
-		private readonly _extensionUri: vscode.Uri
-	) { }
+	private _view?: vscode.WebviewView;
+	private _currentPapers: PaperDictionary = {};
 
 	public resolveWebviewView(
 		webviewView: vscode.WebviewView,
@@ -19,33 +23,15 @@ export class SearchBTViewProvider implements vscode.WebviewViewProvider {
 		_token: vscode.CancellationToken
 	) {
 		this._view = webviewView;
-
-		webviewView.webview.options = {
-			// Allow scripts in the webview
-			enableScripts: true,
-
-			localResourceRoots: [
-				this._extensionUri
-			]
-		};
-
-		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+		webviewView.webview.options = this.getWebviewOptions(this._extensionUri);
+		webviewView.webview.html = getHtmlForWebview(webviewView.webview, this._extensionUri);
 
 		webviewView.webview.onDidReceiveMessage(data => {
 			switch (data.type) {
 				case 'getBibTeX':
 					{
-						webviewView.webview.postMessage({ type: 'loading' });
 						const paperId = data.message;
-						console.log(paperId);
-						fetchBibTeX(paperId).then(data => {
-							console.log(data);
-							addStringToFile(getLibraryFilePath(), data + '\n\n');
-							webviewView.webview.postMessage({ type: 'stopLoading' });
-						}).catch(err => {
-							console.error(err);
-							webviewView.webview.postMessage({ type: 'stopLoading' });
-						});
+						this.handleGetBibTeX(paperId);
 						break;
 					}
 				case 'debug': // Handle the debug message
@@ -55,26 +41,98 @@ export class SearchBTViewProvider implements vscode.WebviewViewProvider {
 					}
 				case 'searchPaper':
 					{
-						webviewView.webview.postMessage({ type: 'loading' });
 						const paperTitle = data.message;
-						// console.log(paperTitle);
-						fetchSemanticScholar(paperTitle, 5).then(data => {
-							// console.log(data.data[0]);
-							webviewView.webview.postMessage({ type: 'papers', message: data.data });
-							webviewView.webview.postMessage({ type: 'stopLoading' });
-						}).catch(err => {
-							console.error(err);
-							webviewView.webview.postMessage({ type: 'stopLoading' });
-						});
-
-						// console.log("Request ended");
+						this.handlePaperSearch(paperTitle);
 						break;
 					}
 			}
 		});
 
 	}
+	
+	// Function to get webview options
+	private getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
+		return {
+			enableScripts: true,
+			localResourceRoots: [extensionUri],
+		};
+	}
 
+	// Functions to handle webview messages
+	private handlePaperSearch(paperTitle: string) {
+		this._view?.webview.postMessage({ type: 'loading' });
+		fetchSemanticScholar(paperTitle, 5).then(data => {
+
+			console.log(data.data);
+			// console.log(JSON.stringify(data.data));
+			
+			for (const paper of data.data) {
+				this._currentPapers[paper.paperId] = new Paper(paper);
+			}
+
+			this._view?.webview.postMessage({ type: 'papers', message: data.data });
+			this._view?.webview.postMessage({ type: 'stopLoading' });
+		}).catch(err => {
+			console.error(err);
+			this._view?.webview.postMessage({ type: 'stopLoading' });
+		});
+	}
+
+	private handleGetBibTeX(paperId: string) {
+		this._view?.webview.postMessage({ type: 'loading' });
+		fetchBibTeX(paperId).then(data => {
+			const bibKeyPattern = getBibKeyPattern();
+			let workingBibKey = false;
+			let bibTex = data as string;
+			let possibleKey = getBibTexKey(bibTex);
+			// console.log(bibKeyPattern);
+			// if the user wants to use a bib key pattern
+			if(bibKeyPattern){
+				// console.log(this._currentPapers[paperId].getBibTexKey(bibKeyPattern));
+				const bibKey = this._currentPapers[paperId].getBibTexKey(bibKeyPattern);
+				if(bibKey.success){
+					bibTex = replaceBibTexKey(bibTex, bibKey.key);
+					workingBibKey = true;
+				}
+			}
+			console.log(possibleKey);
+			// check if the key is 'None'
+			if(!possibleKey && !workingBibKey){
+				possibleKey = this._currentPapers[paperId].getBibTexKey('\\t(0)').key;
+				console.log(possibleKey);
+			} else {workingBibKey = true;}
+
+			this._view?.webview.postMessage({ type: 'stopLoading' });
+			if(workingBibKey){
+				addStringToFile(getLibraryFilePath(), bibTex + '\n\n');
+			}
+			else{
+				console.log(possibleKey);
+				vscode.window.showErrorMessage('BibTeX has no key!', 'Add without key', 'Enter key manually')
+					.then((choice) => {
+						if (choice === 'Add without key') {
+							addStringToFile(getLibraryFilePath(), data + '\n\n');
+						} else if (choice === 'Enter key manually') {
+							vscode.window.showInputBox({ prompt: 'Enter the BibTeX key', value: possibleKey})
+								.then((key) => {
+									if (key) {
+										// Handle the entered key logic here
+										console.log('Entered key:', key);
+										const newData = replaceBibTexKey(data as string, key);
+										addStringToFile(getLibraryFilePath(), newData + '\n\n');
+									}
+								});
+						}
+					});
+			}
+		}).catch(err => {
+			console.error(err);
+			this._view?.webview.postMessage({ type: 'stopLoading' });
+		});
+	}
+
+
+	// Functions to handle vscode commands
 	public clearPapers() {
 		if (this._view) {
 			this._view.webview.postMessage({ type: 'clearPaperList' });
@@ -96,66 +154,5 @@ export class SearchBTViewProvider implements vscode.WebviewViewProvider {
 		});
 	}
 
-	private _getHtmlForWebview(webview: vscode.Webview) {
-		// Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
-		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js'));
-
-		// Do the same for the stylesheet.
-		const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css'));
-		const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'));
-		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.css'));
-
-		// Use a nonce to only allow a specific script to be run.
-		const nonce = getNonce();
-
-		return `<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<meta charset="UTF-8">
-
-				<!--
-					Use a content security policy to only allow loading styles from our extension directory,
-					and only allow scripts that have a specific nonce.
-					(See the 'webview-sample' extension sample for img-src content security policy examples)
-				-->
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
-
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-				<link href="${styleResetUri}" rel="stylesheet">
-				<link href="${styleVSCodeUri}" rel="stylesheet">
-				<link href="${styleMainUri}" rel="stylesheet">
-
-				<title>Search BibTeX</title>
-			</head>
-			<body>
-				<form id="paperSearchForm">
-					<label for="paperTitle">Enter the name of a scientific paper:</label>
-					<input type="text" id="paperTitle" name="paperTitle" required>
-					<button type="submit">Search</button>
-				</form>
-				<div id="loading"></div>
-				<div id="paperList"></div>
-
-				<script nonce="${nonce}" src="${scriptUri}"></script>
-			</body>
-			</html>`;
-	}
-}
-
-
-export function getNonce() {
-	let text = '';
-	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	for (let i = 0; i < 32; i++) {
-		text += possible.charAt(Math.floor(Math.random() * possible.length));
-	}
-	return text;
-}
-
-function getLibraryFilePath() {
-    // Retrieve the library file path from the settings
-    const config = vscode.workspace.getConfiguration();
-    const filePath = config.get('libraryFilePath');
-    return filePath as string;
+	
 }
