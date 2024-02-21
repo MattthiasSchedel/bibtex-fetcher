@@ -19,11 +19,18 @@ With release 1.0 we improved the usability by adding a visual interface for the 
 ### Generating BibTeX for websites
 Version 1.0 does not support generating BibTeX for websites yet. We removed the feature from the pre-release since it was incomplete.
 
-## Customizable File Path
+### Customizable File Path
 By default, the fetched BibTeX entries are saved to a file named `library.bib`. However, you have the flexibility to customize the file path and filename to suit your needs. Specify your desired location and file name in the extension settings to keep your bibliography organized. 
 
 *If you are working with differing project structures you should use the workspace settings.*
 ![screenshot](res/setPath.png)
+
+### Customizable BibTeX key
+You have the option to change how the BibTeX key will be generated. By default this will be turned off. There are different patterns you can choose from to build your key. 
+
+*Please let us know if you think this is useful or needs more work.*
+![alt text](res/changeKeyPattern.png)
+
 
 ## Release Notes
 ### 0.0.1
@@ -54,6 +61,17 @@ In this first mayor update we changed the following:
 4. Bug fixes and rework of codebase.
 5. Added new icon designed by [Ngoc-Han Le](https://www.linkedin.com/in/ngoc-han-le/).
 
-This release should greatly improve the reliability of the BibTeX manager Extension. Happy writing!
+This release should greatly improve the reliability of the BibTeX manager Extension.
+
+### 1.1.0
+Added the option to specify the BibTex key using a pallette of patterns. 
+
+Added a warning if the BibTeX is invalid or incomplete. 
+
+If you like the work done here, please give it a star on GitHub or in the extension store ⭐
+
+Happy writing!
+
+
 
 
