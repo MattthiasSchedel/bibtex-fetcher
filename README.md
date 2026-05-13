@@ -49,46 +49,13 @@ The key is stored in your VS Code settings on your machine only — keep it priv
 - `npm test` — full VS Code integration tests
 - Press <kbd>F5</kbd> in VS Code to launch an Extension Development Host.
 
-## Release Notes
-### 0.0.1
-
-Initial release of the BibTeX Fetcher extension. 
-
-### 0.0.2 
-
-Minor fixes
-
-### 0.1.0
-
-Added automatic BibTeX generation for websites.
-
-### 0.2.0 
-
-Added the (long needed) option to use a custom filename.
-
-### 0.3.0 
-
-There was an issue with DBLP. Thats why i changed it so you now can choose the engine which is used to look up the citation in the settings. 
-
-### 1.0.0
-In this first mayor update we changed the following:
-1. Introduced a visual interface when looking up and adding BibTeX.
-2. Added the option to choose the required citation out of a list of papers. 
-3. Added [SemanticScholar](https://www.semanticscholar.org) as the backend.
-4. Bug fixes and rework of codebase.
-5. Added new icon designed by [Ngoc-Han Le](https://www.linkedin.com/in/ngoc-han-le/).
-
-This release should greatly improve the reliability of the BibTeX manager Extension.
-
-### 1.1.0
-Added the option to specify the BibTex key using a pallette of patterns. 
-
-Added a warning if the BibTeX is invalid or incomplete. 
+## Support
 
 If you like the work done here, please give it a star on GitHub or in the extension store ⭐
 
-Happy writing!
-
+<p align="center">
+  <a href="https://buymeacoffee.com/matthiasschedel"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=matthiasschedel&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" alt="Buy Me A Coffee"></a>
+</p>
 
 
 

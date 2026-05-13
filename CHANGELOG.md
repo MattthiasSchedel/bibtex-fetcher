@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.1
+
+- Added a Support section to the README with a Buy Me a Coffee button.
+
 ## 4.0.0
 
 Ground-up refactor for robustness and maintainability.
