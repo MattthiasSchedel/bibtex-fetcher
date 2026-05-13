@@ -1,28 +1,44 @@
 const path = require('path');
 
-module.exports = {
-  target: 'node', // Important: Extensions run in a Node.js-context
-  entry: './src/extension.ts', // Entry point of your extension
-  output: {
-    path: path.resolve(__dirname, 'out'),
-    filename: 'extension.js', // Output file
-    libraryTarget: 'commonjs2',
-    devtoolModuleFilenameTemplate: '../[resource-path]'
-  },
+/** @type {import('webpack').Configuration} */
+const base = {
   devtool: 'source-map',
-  externals: {
-    vscode: 'commonjs vscode' // Important: Exclude the 'vscode' module
-  },
-  resolve: {
-    extensions: ['.ts', '.js'] // Resolve these file types
-  },
+  resolve: { extensions: ['.ts', '.js'] },
   module: {
     rules: [
-      {
-        test: /\.ts$/,
-        exclude: /node_modules/,
-        use: ['ts-loader']
-      }
+      { test: /\.ts$/, exclude: /node_modules/, use: ['ts-loader'] }
     ]
+  },
+  output: {
+    path: path.resolve(__dirname, 'out'),
+    devtoolModuleFilenameTemplate: '../[resource-path]'
   }
 };
+
+/** @type {import('webpack').Configuration} */
+const extensionConfig = {
+  ...base,
+  name: 'extension',
+  target: 'node',
+  entry: './src/extension.ts',
+  output: {
+    ...base.output,
+    filename: 'extension.js',
+    libraryTarget: 'commonjs2'
+  },
+  externals: { vscode: 'commonjs vscode' }
+};
+
+/** @type {import('webpack').Configuration} */
+const webviewConfig = {
+  ...base,
+  name: 'webview',
+  target: 'web',
+  entry: './src/webview/index.ts',
+  output: {
+    ...base.output,
+    filename: 'webview.js'
+  }
+};
+
+module.exports = [extensionConfig, webviewConfig];

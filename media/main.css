@@ -2,6 +2,34 @@ body {
 	background-color: transparent;
 }
 
+#paperTitle {
+	border: 1px solid var(--vscode-input-border, var(--vscode-settings-textInputBorder, var(--vscode-contrastBorder, transparent)));
+	background-color: var(--vscode-input-background);
+	color: var(--vscode-input-foreground);
+	outline: none;
+}
+
+#paperTitle:focus {
+	border-color: var(--vscode-focusBorder);
+	outline: none;
+}
+
+#errorBanner {
+	margin: 6px 0;
+	padding: 6px 8px;
+	border-radius: 2px;
+	background: var(--vscode-inputValidation-errorBackground, rgba(200, 60, 60, 0.15));
+	color: var(--vscode-errorForeground, inherit);
+	border: 1px solid var(--vscode-inputValidation-errorBorder, rgba(200, 60, 60, 0.4));
+	font-size: 0.9em;
+}
+
+.empty {
+	padding: 10px;
+	color: var(--vscode-descriptionForeground, inherit);
+	font-size: 0.9em;
+}
+
 .list {
 	list-style: none;
 	padding: 0;

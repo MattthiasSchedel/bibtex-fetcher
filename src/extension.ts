@@ -1,40 +1,55 @@
 import * as vscode from 'vscode';
-import { SearchBTViewProvider } from './SearchBTViewProvider';
-// import { BibViewProvider } from './BibViewProvider';
+import { SearchView } from './view';
+import { Library, nodeFs } from './library';
+import { Logger } from './logger';
 
+const CMD_ADD = 'bibtex-manager.addCitation';
+const CMD_CLEAR = 'bibtex-manager.clearSearchList';
 
-export function activate(context: vscode.ExtensionContext) {
-    // console.log("Activating tree view");
-    // let bibViewProvider = new BibViewProvider(vscode.workspace.rootPath);
-    // vscode.window.registerTreeDataProvider('bibView', bibViewProvider);
-    // vscode.workspace.onDidChangeTextDocument(e => bibViewProvider.refresh());
+export function activate(context: vscode.ExtensionContext): void {
+	const logger = new Logger();
+	context.subscriptions.push({ dispose: () => logger.dispose() });
 
-    const provider = new SearchBTViewProvider(context.extensionUri);
+	const workspaceRoot =
+		vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
+	const library = new Library(nodeFs, workspaceRoot);
+	const provider = new SearchView(context.extensionUri, library, logger);
 
 	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(SearchBTViewProvider.viewType, provider));
-
+		vscode.window.registerWebviewViewProvider(SearchView.viewType, provider)
+	);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('clearSearchList', () => {
-			provider.clearPapers();
-		}));
+		vscode.commands.registerCommand(CMD_CLEAR, () => provider.clearPapers())
+	);
 
-	// Register the addCitation command
-	let addCitationCommand = vscode.commands.registerCommand('bibtex-manager.addCitation', () => {
-		// Call your addCitation function here
-		provider.searchForPaper();
-	});
+	context.subscriptions.push(
+		vscode.commands.registerCommand(CMD_ADD, async () => {
+			const text = (await vscode.env.clipboard.readText()).trim();
+			if (!text) {
+				vscode.window.showInformationMessage(
+					'Clipboard is empty. Copy a paper title and try again.'
+				);
+				return;
+			}
+			await vscode.commands.executeCommand(
+				'workbench.view.extension.bibViewer'
+			);
+			await vscode.commands.executeCommand('searchView.focus');
+			provider.queueSearch(text);
+		})
+	);
 
-	context.subscriptions.push(addCitationCommand);
-
-	const addCitationButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-	addCitationButton.text = "Add Citation";
-	addCitationButton.tooltip = "Add Citation";
-	addCitationButton.command = 'bibtex-manager.addCitation';
-	addCitationButton.show();
+	const statusBar = vscode.window.createStatusBarItem(
+		vscode.StatusBarAlignment.Left
+	);
+	statusBar.text = '$(book) Add Citation';
+	statusBar.tooltip = 'Search clipboard text on Semantic Scholar and add the BibTeX';
+	statusBar.command = CMD_ADD;
+	statusBar.show();
+	context.subscriptions.push(statusBar);
 }
 
-export function deactivate() {}
-
-
+export function deactivate(): void {
+	// Subscriptions are disposed by VS Code.
+}

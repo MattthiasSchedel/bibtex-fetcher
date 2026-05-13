@@ -1,8 +1,8 @@
 {
   "name": "bibtex-manager",
   "displayName": "BibTeX Manager",
-  "description": "",
-  "version": "3.6.0",
+  "description": "Search and append BibTeX entries to your library from inside VS Code.",
+  "version": "4.0.0",
   "icon": "media/Bibfetch_Logo.png",
   "publisher": "matthiasschedel",
   "repository": {
@@ -10,33 +10,36 @@
     "url": "https://github.com/MattthiasSchedel/bibtex-fetcher"
   },
   "engines": {
-    "vscode": "^1.80.0"
+    "vscode": "^1.90.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onStartupFinished"
-  ],
+  "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
       "title": "BibTeX Manager",
       "properties": {
-        "libraryFilePath": {
+        "bibtexManager.libraryFilePath": {
           "type": "string",
           "default": "library",
-          "description": "The file path for the library.bib file"
+          "description": "Workspace-relative path to the .bib file new entries are appended to. The .bib extension is added if omitted."
         },
-        "bibKeyPattern": {
-          "type": "string",
-          "default": "\\a(1)\\y",
-          "markdownDescription": "The pattern for the BibTeX key. use the following components to create your pattern \n\n | Pattern | Description |\n|---|---|\n| `\\a(n)` | The last names of the first n authors. |\n| `\\Y` | The full year. |\n| `\\y` | The last two digits of the year. |\n| `\\T(n)` | The first n words of a title. |\n| `\\t(n)` | Only the beginning letters of the first n words in the title. |\n| `\\D` | DOI. | \n\nSet `(n)` to `(0)` to include all names/words in the title.\n\nEvery other character will be included in the BibTeX key."
-        },
-        "useBibKeyPattern": {
+        "bibtexManager.bibKey.usePattern": {
           "type": "boolean",
           "default": false,
-          "description": "Use the BibKeyPattern to generate the BibTeX key"
+          "description": "Generate the BibTeX key from a pattern instead of using the upstream key."
+        },
+        "bibtexManager.bibKey.pattern": {
+          "type": "string",
+          "default": "\\a(1)\\y",
+          "markdownDescription": "Pattern used when `#bibtexManager.bibKey.usePattern#` is enabled.\n\n| Pattern | Description |\n|---|---|\n| `\\a(n)` | Last names of the first n authors. |\n| `\\Y` | The full year. |\n| `\\y` | The last two digits of the year. |\n| `\\T(n)` | The first n words of the title. |\n| `\\t(n)` | First letter of each of the first n words in the title. |\n| `\\D` | DOI. |\n\nUse `(0)` to include all names/words. Other characters in the pattern are kept verbatim."
+        },
+        "bibtexManager.semanticScholar.apiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Optional Semantic Scholar API key, sent as the `x-api-key` header. Keys are issued by request at https://www.semanticscholar.org/product/api#api-key. Leaving this empty uses the shared unauthenticated rate limit, which is frequently saturated and returns 429."
         }
       }
     },
@@ -60,16 +63,21 @@
     },
     "commands": [
       {
-        "command": "clearSearchList",
-        "category": "Calico Colors",
-        "title": "Clear Colors",
+        "command": "bibtex-manager.addCitation",
+        "category": "BibTeX",
+        "title": "Add Citation from Clipboard"
+      },
+      {
+        "command": "bibtex-manager.clearSearchList",
+        "category": "BibTeX",
+        "title": "Clear Search Results",
         "icon": "$(clear-all)"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "clearSearchList",
+          "command": "bibtex-manager.clearSearchList",
           "group": "navigation",
           "when": "view == searchView"
         }
@@ -79,28 +87,33 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "webpack --mode production",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
+    "compile:dev": "webpack --mode development",
+    "watch": "webpack --mode development --watch",
+    "compile:tests": "tsc -p ./tsconfig.test.json",
+    "pretest": "npm run compile:tests && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test:unit": "mocha \"out-test/test/unit/**/*.test.js\"",
+    "test": "node ./out-test/test/runTest.js"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
-    "@types/node": "20.2.5",
-    "@types/vscode": "^1.80.0",
+    "@types/node": "^20.11.30",
+    "@types/vscode": "^1.90.0",
     "@typescript-eslint/eslint-plugin": "^5.59.8",
     "@typescript-eslint/parser": "^5.59.8",
     "@vscode/test-electron": "^2.3.2",
     "eslint": "^8.41.0",
     "glob": "^8.1.0",
-    "mocha": "^10.2.0",
+    "mocha": "^11.7.5",
     "ts-loader": "^9.5.1",
     "typescript": "^5.1.3",
     "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4"
   },
-  "dependencies": {
-    "glob": "^10.3.10"
+  "dependencies": {},
+  "overrides": {
+    "diff": "^9.0.0",
+    "serialize-javascript": "^7.0.5"
   }
 }
